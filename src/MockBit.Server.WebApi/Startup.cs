@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.IO;
 
 namespace MockBit.Server.WebApi
 {
@@ -15,13 +20,15 @@ namespace MockBit.Server.WebApi
             _configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Mock Bit Server Setup API", Version = "v1" });
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -35,11 +42,22 @@ namespace MockBit.Server.WebApi
 
         private void ConfigureSetup(IApplicationBuilder app)
         {
-            app.Run(async (context) =>
+            app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                await context.Response.WriteAsync("Will be here setup api");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mock Bit Server Setup API V1");
             });
         }
+
+        //private void ConfugureSwagger(SwaggerGenOptions options)
+        //{
+        //    options.MapType<Guid>(() => new Schema { Type = "string", Format = "uuid" });
+        //    options.SwaggerDoc("v1", new Info { Title = "Mock Bit Server", Version = "v1" });
+        //
+        //    var filePath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "MockBit.Server.WebApi.xml");
+        //    options.IncludeXmlComments(filePath);
+        //}
 
         private void ConfigureMock(IApplicationBuilder app)
         {
