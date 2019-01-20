@@ -2,11 +2,16 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Internal;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MockBit.Server.WebApi.Extensions;
+using MockBit.Server.WebApi.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MockBit.Server.WebApi
 {
@@ -28,6 +33,8 @@ namespace MockBit.Server.WebApi
                 var filePath = Path.Combine(AppContext.BaseDirectory, "MockBit.Server.WebApi.xml");
                 c.IncludeXmlComments(filePath);
             });
+
+            services.AddSingleton<SynchronizedRouteCollection>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -53,10 +60,8 @@ namespace MockBit.Server.WebApi
 
         private void ConfigureMock(IApplicationBuilder app)
         {
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Will be here mock api");
-            });
+            var routeCollection = app.ApplicationServices.GetRequiredService<SynchronizedRouteCollection>();
+            app.UseRouter(routeCollection);
         }
     }
 }

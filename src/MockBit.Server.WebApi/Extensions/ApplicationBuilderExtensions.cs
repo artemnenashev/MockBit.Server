@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace MockBit.Server.WebApi
+namespace MockBit.Server.WebApi.Extensions
 {
     internal static class ApplicationBuilderExtensions
     {
